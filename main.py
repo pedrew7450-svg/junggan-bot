@@ -54,11 +54,11 @@ def make_jungganbo(song_name):
     for i in range(0, len(m), 4):
         # 율명 라인 처리
         m_line = [format_cell(x) for x in m[i:i+4]]
-        res += "│" + "│".join(f"{x:^2}" for x in m_line) + "│\n"
+        res += "│" + "│".join(f"{x:^1}" for x in m_line) + "│\n"
         
         # 가사 라인 처리
         l_line = [format_cell(x, True) for x in l[i:i+4]]
-        res += "│" + "│".join(f"{x:^2}" for x in l_line) + "│\n"
+        res += "│" + "│".join(f"{x:^1}" for x in l_line) + "│\n"
         
         if i + 4 < len(m):
             res += "├──┼──┼──┼──┤\n"
