@@ -44,6 +44,10 @@ def make_jungganbo(song_name):
     target = song_name.replace(" ", "")
     if target not in song_db:
         return "없는 곡입니다."
+        # [추가] 메뉴/목록 기능
+    if target in ["메뉴", "목록", "노래목록", "help", "도움말"]:
+        song_list = "\n".join([f"🎵 {k} ({v['artist']})" for k, v in song_db.items()])
+        return f" 정간봇 수록곡 리스트 \n\n{song_list}\n\n원하는 곡 제목을 정확히 입력해주세요"
     
     data = song_db[target]
     m, l = data["melody"], data["lyrics"]
