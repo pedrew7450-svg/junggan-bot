@@ -1,93 +1,58 @@
-{
- "cells": [
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "d64b69ac-bde6-463a-9173-ad40135e7508",
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "from flask import Flask, request, jsonify\n",
-    "\n",
-    "app = Flask(__name__)\n",
-    "\n",
-    "# [방법 A] 미리 저장해둔 노래 데이터베이스\n",
-    "song_db = {\n",
-    "    \"밤편지\": {\n",
-    "        \"artist\": \"아이유\",\n",
-    "        \"melody\": [\"남\", \"△\", \"임\", \"△\", \"남\", \"△\", \"임\", \"고\", \"태\", \"황\", \"△\", \"△\"],\n",
-    "        \"lyrics\": [\"이\", \"-\", \"밤\", \"-\", \"그\", \"-\", \"날\", \"의\", \"반\", \"-\", \"-\", \"-\"]\n",
-    "    },\n",
-    "    \"어떻게이별까지사랑하겠어\": {\n",
-    "        \"artist\": \"AKMU\",\n",
-    "        \"melody\": [\"태\", \"태\", \"태\", \"태\", \"태\", \"황\", \"△\", \"△\", \"황\", \"태\", \"고\", \"임\"],\n",
-    "        \"lyrics\": [\"일\", \"부\", \"러\", \"몇\", \"발\", \"자\", \"국\", \"물\", \"어\", \"떻\", \"게\", \"이\"]\n",
-    "    }\n",
-    "}\n",
-    "\n",
-    "def make_jungganbo(song_name):\n",
-    "    if song_name not in song_db:\n",
-    "        return \"노래를 다시 입력해주세요!\"\n",
-    "    \n",
-    "    data = song_db[song_name]\n",
-    "    m, l = data[\"melody\"], data[\"lyrics\"]\n",
-    "    \n",
-    "    res = f\"🤖 정간봇: {data['artist']} - {song_name}\\n\\n\"\n",
-    "    res += \"┌──┬──┬──┬──┐\\n\"\n",
-    "    for i in range(0, len(m), 4):\n",
-    "        # 율명 한 줄\n",
-    "        res += \"│\" + \"│\".join(f\"{x:^2}\" for x in m[i:i+4]) + \"│\\n\"\n",
-    "        # 가사 한 줄\n",
-    "        res += \"│\" + \"│\".join(f\"({x:^1})\" for x in l[i:i+4]) + \"│\\n\"\n",
-    "        if i + 4 < len(m):\n",
-    "            res += \"├──┼──┼──┼──┤\\n\"\n",
-    "    res += \"└──┴──┴──┴──┘\"\n",
-    "    return res\n",
-    "\n",
-    "@app.route('/api/junggan', methods=['POST'])\n",
-    "def chat():\n",
-    "    body = request.get_json()\n",
-    "    user_text = body['userRequest']['utterance'].replace(\" \", \"\") # 공백 제거\n",
-    "    \n",
-    "    # 정간보 결과 생성\n",
-    "    answer = make_jungganbo(user_text)\n",
-    "    \n",
-    "    # 카카오톡 전용 JSON 응답 양식\n",
-    "    return jsonify({\n",
-    "        \"version\": \"2.0\",\n",
-    "        \"template\": {\n",
-    "            \"outputs\": [{\"simpleText\": {\"text\": answer}}]\n",
-    "        }\n",
-    "    })\n",
-    "\n",
-    "# main.py 맨 아랫부분 수정 제안\n",
-    "if __name__ == '__main__':\n",
-    "    # Render 환경 변수에서 포트를 가져오도록 설정\n",
-    "    import os\n",
-    "    port = int(os.environ.get(\"PORT\", 5000))\n",
-    "    app.run(host='0.0.0.0', port=port)"
-   ]
-  }
- ],
- "metadata": {
-  "kernelspec": {
-   "display_name": "Python [conda env:base] *",
-   "language": "python",
-   "name": "conda-base-py"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.13.9"
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 5
+import os
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+# 데이터베이스
+song_db = {
+    "밤편지": {
+        "artist": "아이유",
+        "melody": ["남", "△", "임", "△", "남", "△", "임", "고", "태", "황", "△", "△"],
+        "lyrics": ["이", "-", "밤", "-", "그", "-", "날", "의", "반", "-", "-", "-"]
+    },
+    "어떻게이별까지사랑하겠어": {
+        "artist": "AKMU",
+        "melody": ["태", "태", "태", "태", "태", "황", "△", "△", "황", "태", "고", "임"],
+        "lyrics": ["일", "부", "러", "몇", "발", "자", "국", "물", "어", "떻", "게", "이"]
+    }
 }
+
+def make_jungganbo(song_name):
+    # 사용자가 제목만 쳐도 인식되게 함 (공백 제거)
+    target = song_name.replace(" ", "")
+    if target not in song_db:
+        return "노래를 찾을 수 없소! 현재 '밤편지', '어떻게이별까지사랑하겠어'만 가능하오."
+    
+    data = song_db[target]
+    m, l = data["melody"], data["lyrics"]
+    
+    res = f"🤖 정간봇: {data['artist']} - {target}\n\n"
+    res += "┌──┬──┬──┬──┐\n"
+    for i in range(0, len(m), 4):
+        res += "│" + "│".join(f"{x:^2}" for x in m[i:i+4]) + "│\n"
+        res += "│" + "│".join(f"({x:^1})" for x in l[i:i+4]) + "│\n"
+        if i + 4 < len(m):
+            res += "├──┼──┼──┼──┤\n"
+    res += "└──┴──┴──┴──┘"
+    return res
+
+@app.route('/api/junggan', methods=['POST'])
+def chat():
+    try:
+        body = request.get_json()
+        user_text = body['userRequest']['utterance']
+        answer = make_jungganbo(user_text)
+    except Exception as e:
+        answer = "오류가 발생했소! 서버 로그를 확인해보시오."
+
+    return jsonify({
+        "version": "2.0",
+        "template": {
+            "outputs": [{"simpleText": {"text": answer}}]
+        }
+    })
+
+if __name__ == '__main__':
+    # Render 환경변수 PORT를 우선 사용
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
