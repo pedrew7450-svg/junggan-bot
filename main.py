@@ -31,8 +31,7 @@ song_db = {
             "떠", "올", "려", "-", "그", "럼", "언", "제",
             "든", "-", "-", "-", "눈", "을", "감", "고"
         ]
-    }
-}song_db.update({
+    }({
     "LOVEDIVE": {
         "artist": "IVE",
         "melody": [
@@ -93,7 +92,7 @@ song_db = {
             "L", "다", "음", "O", "V", "E", "-", "-"
         ]
     }
-})
+})}
 def format_cell(data, is_lyric=False):
     """한 칸에 데이터가 여러 개(리스트)면 소박 형식으로 변환"""
     if isinstance(data, list):
